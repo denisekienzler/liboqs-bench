@@ -1,0 +1,11 @@
+# Jupyter Notebook
+**/.ipynb_checkpoints
+
+# venv
+.venv-lb/
+
+# pycache
+**/__pycache__/
+
+# setuptools
+**/*.egg-info/

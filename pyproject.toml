@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "liboqs_bench"
+dynamic = ["version"]
+authors = [{name="Denise Kienzler"}]
+description = "Small Python utility benchmarking PQC KEM algorithms and schemes from the liboqs-python library."
+readme = "README.md"
+requires-python = ">=3.12.3"
+keywords = ["PQC", "liboqs", "benchmark", "KEM"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "GPL-3.0-or-later"
+license-files = ["LICEN[CS]E*"]
+
+[project.scripts]
+liboqs_bench = "liboqs_bench.__main__:main"
+
+[project.urls]
+Repository = "https://github.com/denisekienzler/liboqs-bench.git"
+
+[tool.setuptools.dynamic]
+version = {attr = "liboqs_bench.__version__"}
