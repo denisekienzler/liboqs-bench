@@ -11,11 +11,11 @@ __init__.py for importing package.
 
 __name__ = 'liboqs_bench'
 __package__= 'liboqs_bench'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 # Capture warnings and and disable logging from oqs library
 import logging
 logging.captureWarnings(True)
 logging.getLogger('oqs.oqs').disabled = True
 
-from liboqs_bench.liboqs_bench import liboqs_bench
+from liboqs_bench.bench import liboqs_bench

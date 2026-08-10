@@ -8,14 +8,16 @@ It then chooses the fastest trial and calculates the average.
 
 Main module containing benchmark classes for algorithms and schemes as well as interactive function.
 '''
+
+import timeit
+import time
 import logging
 _logger = logging.getLogger('__main__.' + __name__)
 
 from oqs import oqs
-import timeit
-import time
-from liboqs_bench.custom_exceptions import *
-from liboqs_bench.schemes import *
+
+from .custom_exceptions import *
+from .schemes import *
 
 
 class _Benchmark(timeit.Timer):
@@ -115,7 +117,8 @@ class _CompleteComparison(_ComparisonCompleteScheme):
 
 def liboqs_bench(alg:str, *schemes, iterations:int=1000):
 
-    '''Usage: liboqs_bench({'help'|'schemes'|algorithm} [,scheme1[,scheme2[,scheme3,...]]] [,iterations=int])
+    '''
+Usage: liboqs_bench({'help'|'schemes'|'server'|algorithm} [,host,port] [,scheme1[,scheme2[,scheme3,...]]] [,iterations=int])
 
 Small Python utility benchmarking PQC KEM algorithms and \
 schemes from the liboqs-python library. The program measures each \
@@ -124,6 +127,8 @@ the step a specified number of iterations for five trials in total. \
 It then chooses the fastest trial and calculates the average.
 
 Main function for interactive usage, calls classes according to arguments provided.
+
+Common usage is as follows:
 
 First argument is the algorithm step: "KeyGeneration", "Encapsulation", "Decapsulation", or "complete".
 
@@ -135,32 +140,66 @@ iterations each benchmark round should use. The default number is 1000.
 
 For help, the user can pass as the first argument "help", which prints out this docstring, or "schemes", 
 which returns a list of supported KEM schemes.
+
+In order to start an unencrypted server, type 'server' as the first argument, followed by a host and port number.
     '''
 
+    # Limit iterations to 1000
+    if iterations > 1000:
+        iterations = 1000
+        _logger.warning('Number of iterations higher than 1000 disallowed, setting to 1000.')
+
+    
     match alg:
         case 'help':
-            print(liboqs_bench.__doc__)
+            return liboqs_bench.__doc__
 
         case 'schemes':
             schemes_str = 'Supported KEM schemes:\n'
             for scheme_name in oqs.get_enabled_kem_mechanisms():
                 schemes_str += f'\n"{scheme_name}"'
-            print(schemes_str)     
+            return schemes_str
 
+        case 'server':
+            # Import only when required to avoid circular import
+            from .server import liboqs_bench_server
+            if schemes:
+                host,port = schemes[0],schemes[1]
+            else:
+                host,port = '127.0.0.1',31021
+            liboqs_bench_server(host,port)
+            
         case 'complete':
             try:
                 if schemes[0] == 'all':
+                    
+                    # Limit iterations to 100
+                    if iterations > 100:
+                        iterations = 100
+                        _logger.warning('Number of iterations higher than 100 disallowed for all schemes, setting to 100.')
+
                     return _CompleteComparison().compare_complete(iterations)
+
+                else:
+                    return _ComparisonCompleteScheme(*schemes).compare_complete(iterations)
+
             except IndexError:
                 raise NoSchemeProvidedError
-            else:
-                return _ComparisonCompleteScheme(*schemes).compare_complete(iterations)
+            
 
         case _:
             try:
+
                 if schemes[0] == 'all':
+                    
+                    # Limit iterations to 100
+                    if iterations > 100:
+                        iterations = 100
+                        _logger.warning('Number of iterations higher than 100 disallowed for all schemes, setting to 100.')
+                    
                     return [_ComparisonAllSchemes(alg).compare(iterations)]
+                else:
+                    return [_Comparison(alg, *schemes).compare(iterations)]
+
             except IndexError:
                 raise NoSchemeProvidedError        
-            else:
-                return [_Comparison(alg, *schemes).compare(iterations)]

@@ -1,6 +1,6 @@
 '''
-Small Python utility benchmarking PQC KEM algorithms and \
-schemes from the liboqs-python library. The program measures each \
+Client for liboqs_bench, a small Python utility benchmarking PQC KEM algorithms and \
+schemes from the liboqs-python library. The client connects with a liboqs_bench server which measures each \
 algorithm step separately for as many schemes as required by running \
 the step a specified number of iterations for five trials in total. \
 It then chooses the fastest trial and calculates the average.
@@ -17,47 +17,43 @@ _formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
 _handler.setFormatter(_formatter)
 _logger.addHandler(_handler)
 
-from oqs.oqs import get_enabled_kem_mechanisms as kem_schemes
+from .client import liboqs_bench_client
+from .client_parser import ClientParser
 
-from .bench import liboqs_bench
-from .argument_parser import ArgumentParser
-
-def main():
+def main()->int:
 
     # Setup
-    argparser = ArgumentParser()
-    arguments = argparser.parser.parse_args()
+    client_parser = ClientParser()
+    arguments = client_parser.parser.parse_args()
 
     # Logging level
     if arguments.debug:
         logging.captureWarnings(False)
-        logging.getLogger('oqs.oqs').disabled = False
         _logger.setLevel(logging.DEBUG)
 
     elif arguments.info:
         logging.captureWarnings(False)
-        logging.getLogger('oqs.oqs').disabled = False
         _logger.setLevel(logging.INFO)
+    
+    # Handle missing argument by printing docstring and exit
+    if arguments.alg == None:
+        print(liboqs_bench_client.__doc__)
+        return 0
     
     # List schemes and exit...
     if arguments.list_schemes:
-        schemes_str = 'Supported KEM schemes:\n'
-        for scheme_name in kem_schemes():
-            schemes_str += f'\n"{scheme_name}"'
-        print(schemes_str)
-
-    # Or expose server endpoint...
-    elif arguments.server:
-        _logger.debug('Received server argument.')
-        liboqs_bench('server', arguments.host, arguments.port)
-
-    # Or run benchmark
+        kem_schemes = liboqs_bench_client(arguments.host, arguments.port, 'schemes')
+        print(kem_schemes)
+        return 0
+        
+    # Or connect to server and run benchmark
     else:
-        results = liboqs_bench(arguments.alg, *arguments.scheme, iterations=arguments.iterations)
+        results = liboqs_bench_client(arguments.host, arguments.port, arguments.alg, *arguments.scheme, iterations=arguments.iterations)
         for outer in results:
             print(outer[0])
             for result in outer[1].items():
                 print(result)
+        return 0
 
 if __name__ == '__main__':
     main()

@@ -35,7 +35,7 @@ class UnsupportedSchemeError(Exception):
         schemes_str = ''
         for scheme_name in oqs.get_enabled_kem_mechanisms():
             schemes_str += f'\n"{scheme_name}"'
-        message = f'"{scheme}" is not a supported KEM scheme.\n\nInstead use one of these:\n{schemes_str}'
+        message = f'\n"{scheme}" is not a supported KEM scheme.\n\nInstead use one of these:\n{schemes_str}'
         super().__init__(message)
 
 class NoSchemeProvidedError(Exception):

@@ -19,6 +19,7 @@ license-files = ["LICEN[CS]E*"]
 
 [project.scripts]
 liboqs_bench = "liboqs_bench.__main__:main"
+liboqs_bench_client = "liboqs_bench_client.__main__:main"
 
 [project.urls]
 Repository = "https://github.com/denisekienzler/liboqs-bench.git"
