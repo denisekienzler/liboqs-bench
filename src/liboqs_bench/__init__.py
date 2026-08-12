@@ -11,7 +11,7 @@ __init__.py for importing package.
 
 __name__ = 'liboqs_bench'
 __package__= 'liboqs_bench'
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 # Capture warnings and and disable logging from oqs library
 import logging
