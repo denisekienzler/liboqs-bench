@@ -10,7 +10,7 @@ Main module containing interactive liboqs_bench function.
 '''
 
 import logging
-_logger = logging.getLogger('__main__.' + __name__)
+_logger = logging.getLogger(__name__)
 
 from oqs import oqs
 

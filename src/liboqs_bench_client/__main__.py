@@ -11,7 +11,7 @@ Calls the argument parser for command line arguments, passes them to liboqs_benc
 '''
 
 import logging
-_logger = logging.getLogger(__name__)
+_logger = logging.getLogger()
 _handler = logging.StreamHandler()
 _formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
 _handler.setFormatter(_formatter)
@@ -52,7 +52,7 @@ def main()->int:
         for outer in results:
             print(outer[0])
             for result in outer[1].items():
-                print(result)
+                print(f'"{result[0]}": {result[1]}')
         return 0
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ Command line argument parser.
 '''
 
 import logging
-_logger = logging.getLogger('__main__.' + __name__)
+_logger = logging.getLogger(__name__)
 
 from liboqs_bench.__init__ import __version__
 from oqs.oqs import get_enabled_kem_mechanisms as kem_schemes

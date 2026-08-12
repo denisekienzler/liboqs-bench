@@ -12,7 +12,7 @@ import ipaddress
 import socket
 import pickle
 import logging
-_logger = logging.getLogger('__main__.' + __name__)
+_logger = logging.getLogger(__name__)
 
 def liboqs_bench_client(host:str='help', port:int=31021, alg=None, *schemes, iterations:int=1000):
     '''

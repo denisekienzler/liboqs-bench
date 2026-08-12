@@ -12,7 +12,7 @@ Module containing benchmark classes for algorithms and schemes.
 import timeit
 import time
 import logging
-_logger = logging.getLogger('__main__.' + __name__)
+_logger = logging.getLogger(__name__)
 
 from oqs import oqs
 

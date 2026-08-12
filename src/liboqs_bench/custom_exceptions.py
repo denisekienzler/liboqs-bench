@@ -2,7 +2,7 @@
 Custom exceptions for liboqs_bench package.
 '''
 import logging
-_logger = logging.getLogger('__main__.' + __name__)
+_logger = logging.getLogger(__name__)
 
 from oqs import oqs
 

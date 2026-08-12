@@ -12,7 +12,7 @@ import ipaddress
 import socket
 import pickle
 import logging
-_logger = logging.getLogger('__main__.' + __name__)
+_logger = logging.getLogger(__name__)
 
 from .bench import liboqs_bench
 from .custom_exceptions import *

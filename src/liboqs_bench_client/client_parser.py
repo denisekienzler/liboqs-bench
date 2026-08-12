@@ -10,7 +10,7 @@ Client command line argument parser.
 
 import argparse
 import logging
-_logger = logging.getLogger('__main__.' + __name__)
+_logger = logging.getLogger(__name__)
 
 from liboqs_bench_client.__init__ import __version__
 

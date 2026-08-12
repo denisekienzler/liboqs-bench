@@ -11,6 +11,6 @@ __init__.py for importing client package.
 
 __name__ = 'liboqs_bench_client'
 __package__= 'liboqs_bench_client'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 from liboqs_bench_client.client import liboqs_bench_client
