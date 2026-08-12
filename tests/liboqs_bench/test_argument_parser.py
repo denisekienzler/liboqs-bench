@@ -1,7 +1,10 @@
 '''Stub testing script for argument parser'''
 
 import unittest
-#from liboqs_bench.argument_parser import ArgumentParser
+import sys
+sys.path.append('../src')
+
+from liboqs_bench.argument_parser import ArgumentParser
 
 class TestArgumentParser(unittest.TestCase):
     '''
