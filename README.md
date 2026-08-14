@@ -36,21 +36,20 @@ or as Python module
 
 `python3 -m liboqs_bench [-h] [-d] [-H HOST] [-i] [-I int] [-l] [-P PORT] [-s] [-v] [algorithm] [schemes ...]`
 
-positional arguments:
-  algorithm             the desired algorithm step or "complete": \['KeyGeneration', 'Encapsulation', 'Decapsulation', 'complete']
-  scheme                at least one KEM scheme or "all" - for full list use -l option
+positional arguments:  
+  algorithm:             the desired algorithm step or "complete": \['KeyGeneration', 'Encapsulation', 'Decapsulation', 'complete']  
+  scheme:                at least one KEM scheme or "all" - for full list use -l option  
 
-options:
-  -h, --help            show this help message and exit
-  -d, --debug           set log level to DEBUG and enable oqs warnings and logs (STUB FUNCTIONALITY)
-  -H HOST, --host HOST  IP address of host server interface (127.0.0.1 by default)
-  -i, --info            set log level to INFO and enable oqs warnings and logs (STUB FUNCTIONALITY)
-  -I int, --iterations int
-                        set the number of iterations of each benchmark trial (default=1000)
-  -l, --list-schemes    print the full list of supported KEM schemes and exit
-  -P PORT, --port PORT  registered port (1024-49151) on which to expose service (default=31021)
-  -s, --server          expose liboqs_bench as network service
-  -v, --version         show program's version number and exit
+options:  
+  -h, --help:            show this help message and exit  
+  -d, --debug:           set log level to DEBUG and enable oqs warnings and logs (STUB FUNCTIONALITY)  
+  -H HOST, --host HOST:  IP address of host server interface (127.0.0.1 by default)  
+  -i, --info:            set log level to INFO and enable oqs warnings and logs (STUB FUNCTIONALITY)  
+  -I int, --iterations int: set the number of iterations of each benchmark trial (default=1000)  
+  -l, --list-schemes:    print the full list of supported KEM schemes and exit  
+  -P PORT, --port PORT:  registered port (1024-49151) on which to expose service (default=31021)  
+  -s, --server:          expose liboqs_bench as network service  
+  -v, --version:         show program's version number and exit  
   
 ### Run in Python environment
 
@@ -83,20 +82,19 @@ Start a server with one of these options:
 
 `liboqs_bench_client [-h] [-d] [-H HOST] [-i] [-I int] [-l] [-P PORT] [-v] [algorithm] [schemes ...]`
 
-positional arguments:
-  algorithm             the desired algorithm step or "complete": ['KeyGeneration', 'Encapsulation', 'Decapsulation', 'complete']
-  schemes               at least one KEM scheme or "all" - for full list use -l option
+positional arguments:  
+  algorithm:             the desired algorithm step or "complete": ['KeyGeneration', 'Encapsulation', 'Decapsulation', 'complete']  
+  schemes:               at least one KEM scheme or "all" - for full list use -l option  
 
-options:
-  -h, --help            show this help message and exit
-  -d, --debug           set log level to DEBUG
-  -H HOST, --host HOST  IP address of host server interface (127.0.0.1 by default)
-  -i, --info            set log level to INFO
-  -I int, --iterations int
-                        set the number of iterations of each benchmark trial (default=1000)
-  -l, --list-schemes    print the full list of supported KEM schemes and exit
-  -P PORT, --port PORT  registered port (1024-49151) on which to expose service (default=31021)
-  -v, --version         show program's version number and exit
+options:  
+  -h, --help:            show this help message and exit  
+  -d, --debug:           set log level to DEBUG  
+  -H HOST, --host HOST:  IP address of host server interface (127.0.0.1 by default)  
+  -i, --info:            set log level to INFO  
+  -I int, --iterations int: set the number of iterations of each benchmark trial (default=1000)  
+  -l, --list-schemes:    print the full list of supported KEM schemes and exit  
+  -P PORT, --port PORT:  registered port (1024-49151) on which to expose service (default=31021)  
+  -v, --version:         show program's version number and exit  
 
 ### Run in Python environment
 
