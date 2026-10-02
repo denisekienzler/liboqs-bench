@@ -74,13 +74,12 @@ class StubServer():
 class TestClientNoArgument(unittest.TestCase):
     '''Test class for no argument passed.'''
 
-    @classmethod
-    def setUpClass(cls):
-        cls.server = StubServer()
+    def setUp(self):
+        self.server = StubServer()
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.server.close_server()
+    def tearDown(self):
+        self.server.close_server()
+        del self.server
 
     def test_no_argument(self):
         '''No argument returns doc string.'''
@@ -91,13 +90,12 @@ class TestClientNoArgument(unittest.TestCase):
 class TestClientHostArgument(unittest.TestCase):
     '''Test class on host argument.'''
 
-    @classmethod
-    def setUpClass(cls):
-        cls.server = StubServer()
+    def setUp(self):
+        self.server = StubServer()
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.server.close_server()
+    def tearDown(self):
+        self.server.close_server()
+        del self.server
 
     def test_valid_true_IP(self):
         '''Valid and right IPv4 host argument sends request to server.'''
@@ -149,13 +147,12 @@ class TestClientHostArgument(unittest.TestCase):
 class TestClientPortArgument(unittest.TestCase):
     '''Test class for port argument.'''
 
-    @classmethod
-    def setUpClass(cls):
-        cls.server = StubServer()
+    def setUp(self):
+        self.server = StubServer()
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.server.close_server()
+    def tearDown(self):
+        self.server.close_server()
+        del self.server
 
     def test_valid_right_port(self):
         '''Valid (registered) and right port sends request to server.'''
@@ -190,13 +187,12 @@ class TestClientPortArgument(unittest.TestCase):
 class TestClientAlgorithmArgument(unittest.TestCase):
     '''Test class for algorithm argument.'''
 
-    @classmethod
-    def setUpClass(cls):
-        cls.server = StubServer()
+    def setUp(self):
+        self.server = StubServer()
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.server.close_server()
+    def tearDown(self):
+        self.server.close_server()
+        del self.server
 
     def test_none_algorithm(self):
         '''Passing None to algorithm argument returns docstring.'''
@@ -232,13 +228,12 @@ class TestClientSchemesArgument(unittest.TestCase):
 
     '''Test class for schemes argument.'''
 
-    @classmethod
-    def setUpClass(cls):
-        cls.server = StubServer()
+    def setUp(self):
+        self.server = StubServer()
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.server.close_server()
+    def tearDown(self):
+        self.server.close_server()
+        del self.server
 
     def test_no_schemes(self):
         '''Passing no scheme argument results in valid request (error handling in server).'''
@@ -279,13 +274,12 @@ class TestClientIterationsArgument(unittest.TestCase):
 
     '''Test class for iterations argument.'''
 
-    @classmethod
-    def setUpClass(cls):
-        cls.server = StubServer()
+    def setUp(self):
+        self.server = StubServer()
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.server.close_server()
+    def tearDown(self):
+        self.server.close_server()
+        del self.server
 
     def test_valid_iterations(self):
         '''Positive integer to iterations argument results in valid request to server.'''
