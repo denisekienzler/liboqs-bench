@@ -57,7 +57,6 @@ For help, the user can pass as the first argument "help", which prints out this 
         iterations = 1000
         _logger.warning('Number of iterations higher than 1000 disallowed, setting to 1000.')
     
-
     # Serialize
     req_data = {'alg':alg,'schemes':schemes,'iterations':iterations}
     _logger.debug(f'Data to serialize: {req_data}.')
