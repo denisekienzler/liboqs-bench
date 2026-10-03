@@ -7,16 +7,18 @@ import threading
 import pickle
 import logging
 
-sys.path.append("../src")
-
-from liboqs_bench_client.client import liboqs_bench_client
-
 _logger = logging.getLogger(__name__)
 _handler = logging.StreamHandler()
 _formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
 _handler.setFormatter(_formatter)
 _logger.addHandler(_handler)
 _logger.setLevel(logging.WARNING)
+
+sys.path.insert(0,"../src")
+
+_logger.debug(sys.path)
+
+from liboqs_bench_client.client import liboqs_bench_client
 
 HOST = '127.0.0.1'
 PORT = 31031

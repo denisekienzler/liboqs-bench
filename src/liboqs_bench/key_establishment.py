@@ -9,49 +9,41 @@ It then chooses the fastest trial and calculates the average.
 Module for server-side timed secret key establishment.
 '''
 
-# import timeit
-import time
-from typing import Callable
 import logging
 _logger = logging.getLogger(__name__)
+_logger.debug(logging.getLogger())
+
+import time
+from typing import Callable
+from functools import wraps
 
 from oqs import oqs
 
 def timed_once(func: Callable) -> Callable:
     '''Method decorator function to benchmark time.'''
-    def wrapper(self, *args, **kwargs):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs) -> tuple[bytes, int]:
         start = time.perf_counter_ns()
+        _logger.debug(f'start: {start}, type: {type(start)}')
         cipher,secret = func(self, *args, **kwargs)
         stop = time.perf_counter_ns()
-        alg_time = start - stop
+        _logger.debug(f'stop: {stop}, type: {type(stop)}')
+        alg_time = stop - start
+        _logger.debug(f'alg_time: {alg_time}')
         return cipher,alg_time
     return wrapper
 
-class _ServerKeyEstablishment(oqs.KeyEncapsulation):
+class ServerKeyEstablishment(oqs.KeyEncapsulation):
     '''
     Class for server-side secret key establishment using the client-provided encapsulation key.
     '''
     def __init__(self, scheme: str) -> None:
-        self.server_party = self.KeyEncapsulation(scheme)
+        super().__init__(scheme)
+        _logger.debug(f'self.__dict__: {self.__dict__}')
 
     @timed_once
     def encapsulate_secret(self, encap_key: bytes) -> tuple[bytes,bytes]:
         '''
         Function encapsulates a random secret with client-provided encapsulation key and returns a tuple with the cipher (encapsulated secret) and secret as byte objects.
         '''
-        return self.server_party.encap_secret(encap_key)
-
-# class ServerKeyEstablishmentTimer(timeit.Timer):
-#     '''Class to time encapsulation.'''
-#
-#     def __init__(self, scheme: str, encap_key: bytes) -> None:
-#         super().__init__(stmt=f"server.encapsulate_secret({encap_key})", setup=f"server = _ServerKeyEstablishment({scheme})",
-#                          timer=time.perf_counter_ns, globals=globals())
-#
-#     def cipher_time(self):
-#         try:
-#             return self.timeit(number=1)
-#         except oqs.MechanismNotSupportedError:
-#             raise UnsupportedSchemeError(self.scheme)
-
-# NEED TO FIND WAY TO RETURN RESULT AS WELL
+        return self.encap_secret(encap_key)
