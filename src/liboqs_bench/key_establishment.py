@@ -1,5 +1,4 @@
 '''
-
 Small Python utility benchmarking PQC KEM algorithms and \
 schemes from the liboqs-python library. The program measures each \
 algorithm step separately for as many schemes as required by running \
@@ -37,9 +36,6 @@ class ServerKeyEstablishment(oqs.KeyEncapsulation):
     '''
     Class for server-side secret key establishment using the client-provided encapsulation key.
     '''
-    def __init__(self, scheme: str) -> None:
-        super().__init__(scheme)
-        _logger.debug(f'self.__dict__: {self.__dict__}')
 
     @timed_once
     def encapsulate_secret(self, encap_key: bytes) -> tuple[bytes,bytes]:

@@ -61,6 +61,5 @@ class TestServerKeyEstablishment(unittest.TestCase):
     def test_encapsulate_with_dec_time_int(self):
         self.assertIsInstance(self.key_agent.encapsulate_secret(self.encap_key)[1], int)
 
-
 if __name__ == '__main__':
     unittest.main()
