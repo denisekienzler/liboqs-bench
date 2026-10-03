@@ -1,8 +1,11 @@
 '''Stub test script'''
 
 import unittest
+import sys
+sys.path.append('../src')
+
 from liboqs_bench.custom_exceptions import *
-from liboqs_bench.liboqs_bench import *
+from liboqs_bench import liboqs_bench
 
 class TestCustomExceptions(unittest.TestCase):
     '''
