@@ -14,6 +14,8 @@ import pickle
 import logging
 _logger = logging.getLogger(__name__)
 
+from .key_establishment import ClientKeyEstablishment
+
 def liboqs_bench_client(host:str='help', port:int=31021, alg=None, *schemes, iterations:int=1000):
     '''
 Usage:
@@ -52,14 +54,34 @@ For help, the user can pass as the first argument "help", which prints out this 
         raise ValueError(f'{port} not in range of registered ports 1024-49151')
     _logger.debug('Network address legitimate.')
 
-    # Limit iterations to 1000
-    if iterations > 1000:
-        iterations = 1000
-        _logger.warning('Number of iterations higher than 1000 disallowed, setting to 1000.')
-    
+    # Key Establishment
+    if alg == 'KeyEstablishment':
+
+        _logger.warning('Key establishment measures the time of each algorithm step only once and is not a statistical method.')
+
+        # Generate list of objects
+        key_agent_lst = []
+        encap_key_lst = []
+        for index,scheme in enumerate(schemes):
+            key_agent_lst.append(ClientKeyEstablishment(scheme))
+            encap_key_lst.append((scheme, key_agents[index].generate_keys()))
+
+        # Dictionary to serialize
+        req_data = {'alg':alg,'schemes_keys':encap_key_lst}
+        _logger.debug(f'Data to serialize: {req_data}.')
+
+    else:
+
+        # Limit iterations to 1000
+        if iterations > 1000:
+            iterations = 1000
+            _logger.warning('Number of iterations higher than 1000 disallowed, setting to 1000.')
+
+        # Dictionary to serialize
+        req_data = {'alg':alg,'schemes':schemes,'iterations':iterations}
+        _logger.debug(f'Data to serialize: {req_data}.')
+
     # Serialize
-    req_data = {'alg':alg,'schemes':schemes,'iterations':iterations}
-    _logger.debug(f'Data to serialize: {req_data}.')
     req_payload = pickle.dumps(req_data, pickle.HIGHEST_PROTOCOL)
     _logger.debug(f'Payload to send as request: {req_payload}.')
 

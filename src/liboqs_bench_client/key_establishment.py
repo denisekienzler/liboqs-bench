@@ -33,7 +33,7 @@ def timed_once(func: Callable) -> Callable:
     return wrapper
 
 class ClientKeyEstablishment(oqs.KeyEncapsulation):
-    '''Class to decapsulate a server-provided encapsulated secret (cipher) with the decapsulation key.'''
+    '''Class to generate a client-side key pair and decapsulate a server-provided encapsulated secret (cipher) with the decapsulation key.'''
 
     @timed_once
     def generate_keys(self) -> bytes:
