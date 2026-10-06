@@ -12,6 +12,7 @@ import ipaddress
 import socket
 import pickle
 import logging
+
 _logger = logging.getLogger(__name__)
 
 from .key_establishment import ClientKeyEstablishment
@@ -59,17 +60,25 @@ For help, the user can pass as the first argument "help", which prints out this 
 
         _logger.warning('Key establishment measures the time of each algorithm step only once and is not a statistical method.')
 
-        # Generate list of objects
-        key_agent_lst = []
-        encap_key_lst = []
+        # Generate dictionary of objects
+        key_agent_dct = {}
+        scheme_key_dct = {}
         for index,scheme in enumerate(schemes):
-            key_agent_lst.append(ClientKeyEstablishment(scheme))
-            encap_key_lst.append((scheme, key_agents[index].generate_keys()))
+            session = f'session_no {index}'
+            _logger.debug(f'schemes: {schemes}')
+            _logger.debug(f'scheme: {scheme}')
+            agent = ClientKeyEstablishment(scheme)
+            encap_key, keygen_time = agent.generate_keys()
+            key_agent_dct[session] = {'scheme':scheme, 'agent':agent, 'encap_key':encap_key, 'keygen_time':keygen_time}
+            scheme_key_dct[session] = {'scheme':scheme, 'encap_key':encap_key}
+        _logger.debug(f'key_agent_dct = {key_agent_dct}')
+        _logger.debug(f'scheme_key_dct = {scheme_key_dct}')
 
         # Dictionary to serialize
-        req_data = {'alg':alg,'schemes_keys':encap_key_lst}
+        req_data = {'alg':alg,'scheme_key_dct':scheme_key_dct}
         _logger.debug(f'Data to serialize: {req_data}.')
 
+    # Benchmark at server
     else:
 
         # Limit iterations to 1000
@@ -91,11 +100,19 @@ For help, the user can pass as the first argument "help", which prints out this 
         s.connect((host,port))
         s.sendall(req_payload)
         _logger.info('Request sent.')
-        resp_payload = s.recv(4096)
+        resp_payload = s.recv(8192)
         _logger.info('Response received.')
     
     # Deserialize
     resp_data = pickle.loads(resp_payload)
 
     # Return results
-    return resp_data
+    if alg == 'KeyEstablishment':
+        for session in resp_data:
+            key_agent_dct[session].update(resp_data[session])
+            shared_key, decap_time = key_agent_dct[session]['agent'].decapsulate_cipher(key_agent_dct[session]['server_cipher'])
+            key_agent_dct[session].update([('shared_key',shared_key), ('decap_time',decap_time)])
+        _logger.debug(f'key_agent_dct = {key_agent_dct}')
+        return key_agent_dct
+    else:
+        return resp_data

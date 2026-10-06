@@ -15,6 +15,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 from .bench import liboqs_bench
+from .key_establishment import ServerKeyEstablishment
 from .custom_exceptions import *
 
 def liboqs_bench_server(host, port):
@@ -28,7 +29,7 @@ def liboqs_bench_server(host, port):
         _logger.debug('Network address legitimate.')
 
         with socket.socket() as s:
-            print(f'Starting unsecured server with endpoint at {host}:{port}...')
+            _logger.info(f'Starting unsecured server with endpoint at {host}:{port}...')
             s.bind((host, port))
             s.listen()
             while True:
@@ -36,13 +37,23 @@ def liboqs_bench_server(host, port):
                 conn,addr = s.accept()
                 _logger.info(f'Connected to by {addr}.')
                 with conn:
-                    req_payload = conn.recv(1024)
-                    _logger.debug(f'Request received by {addr}')
+                    req_payload = conn.recv(8192)
+                    _logger.info(f'Request received by {addr}')
                     req_data = pickle.loads(req_payload)
-                    _logger.debug('Deserialized request. Sending data to liboqs_bench function ...')
+                    _logger.info('Deserialized request. Sending data to liboqs_bench function ...')
+                    _logger.debug(f'req_data = {req_data}')
                     try:
-                        resp_data = liboqs_bench(req_data['alg'], *req_data['schemes'], iterations=req_data['iterations'])
-                        _logger.debug('Received data from liboqs_bench. Serializing and sending ...')
+                        if req_data['alg'] == 'KeyEstablishment':
+                            resp_data = {}
+                            for session in req_data['scheme_key_dct']:
+                                key_agent = ServerKeyEstablishment(req_data['scheme_key_dct'][session]['scheme'])
+                                cipher,time = key_agent.encapsulate_secret(req_data['scheme_key_dct'][session]['encap_key'])
+                                resp_data[session] = {'server_cipher':cipher,'encap_time':time}
+                            _logger.debug(f'resp_data = {resp_data}')
+                        else:
+                            resp_data = liboqs_bench(req_data['alg'], *req_data['schemes'], iterations=req_data['iterations'])
+                            _logger.debug(f'resp_data = {resp_data}')
+                        _logger.info('Received data. Serializing and sending ...')
                     except UnsupportedAlgorithmError as a:
                         _logger.warning('UnsupportedAlgorithmError')
                         resp_data = a.args[0]

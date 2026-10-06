@@ -45,14 +45,23 @@ def main()->int:
         kem_schemes = liboqs_bench_client(arguments.host, arguments.port, 'schemes')
         print(kem_schemes)
         return 0
-        
-    # Or connect to server and run benchmark
+
+    # Or connect to server and run benchmark/simulate key establishment.
     else:
         results = liboqs_bench_client(arguments.host, arguments.port, arguments.alg, *arguments.scheme, iterations=arguments.iterations)
-        for outer in results:
-            print(outer[0])
-            for result in outer[1].items():
-                print(f'"{result[0]}": {result[1]}')
+        if arguments.alg == 'KeyEstablishment':
+            for session in results:
+                print()
+                print(str(results[session]['agent']).upper())
+                print(f'Client Key Generation Time: {results[session]['keygen_time']:,d} ns')
+                print(f'Server Cipher Encapsulation Time: {results[session]['encap_time']:,d} ns')
+                print(f'Client Shared Secret Decapsulation Time: {results[session]['decap_time']:,d} ns')
+                print(f'Total Scheme Time: {results[session]['keygen_time']+results[session]['encap_time']+results[session]['decap_time']:,d} ns')
+        else:
+            for outer in results:
+                print(outer[0])
+                for result in outer[1].items():
+                    print(f'"{result[0]}": {result[1]}')
         return 0
 
 if __name__ == '__main__':

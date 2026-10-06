@@ -21,7 +21,7 @@ class ClientParser():
     '''
     def __init__(self):
         global __version__
-        alg_choices=['KeyGeneration', 'Encapsulation', 'Decapsulation', 'complete']
+        alg_choices=['KeyGeneration', 'Encapsulation', 'Decapsulation', 'complete', 'KeyEstablishment']
         self.parser = argparse.ArgumentParser(prog='liboqs_bench_client', 
                                               description='Client for liboqs_bench, a small Python utility \
                                               benchmarking PQC KEM algorithms and schemes from the liboqs-python \
@@ -30,7 +30,7 @@ class ClientParser():
                                               the step a specified number of iterations for five trials in total. \
                                               It then chooses the fastest trial and calculates the average.')
         self.parser.add_argument('alg',  metavar='algorithm', choices=alg_choices, nargs='?',
-                            help=f'the desired algorithm step or "complete": {alg_choices}')
+                            help=f'the desired algorithm (step): {alg_choices}')
         self.parser.add_argument('scheme', nargs='*', metavar='schemes',
                            help=f'at least one KEM scheme or "all" - for full list use -l option')
         self.parser.add_argument('-d', '--debug', action='store_true', help='set log level to DEBUG (STUB FUNCTIONALITY)')

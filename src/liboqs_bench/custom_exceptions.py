@@ -11,7 +11,7 @@ class UnsupportedAlgorithmError(Exception):
     '''Custom exception for the user choosing an unsupported Algorithm or none at all.'''
 
     def __init__(self, alg)-> None:
-        alg_str = '"KeyGeneration", "Encapsulation", "Decapsulation", or "all"'
+        alg_str = '"KeyGeneration", "Encapsulation", "Decapsulation", "complete", or "KeyEstablishment"'
         message = f'''
         "{alg}" is not a supported algorithm or argument.
 

@@ -7,26 +7,49 @@ import threading
 import pickle
 import logging
 
-_logger = logging.getLogger(__name__)
+_logger = logging.getLogger()
 _handler = logging.StreamHandler()
-_formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+_formatter = logging.Formatter('%(name)s - %(levelname)s - %(funcName)s: "%(message)s"')
 _handler.setFormatter(_formatter)
 _logger.addHandler(_handler)
-_logger.setLevel(logging.WARNING)
+_logger.setLevel(logging.INFO)
 
 sys.path.insert(0,"../src")
 
+logging.captureWarnings(True)
+logging.getLogger('py.warnings').disabled = True
+logging.getLogger('oqs.oqs').disabled = True
+logging.getLogger('liboqs_bench_client.client').disabled = True
+
 _logger.debug(sys.path)
+_logger.debug(dir())
 
 from liboqs_bench_client.client import liboqs_bench_client
 
+from oqs import oqs
+
+# Server settings
+
 HOST = '127.0.0.1'
 PORT = 31031
+
+# Module variables
+
 req_data = {'alg':'ALGORITHM','schemes':('SCHEMES_TPL',),'iterations':1000}
 
+valid_scheme_lst = [scheme_name for scheme_name in oqs.get_enabled_kem_mechanisms() if not any(p in scheme_name for p in ['FrodoKEM','Classic-McEliece'])]
+_logger.debug(f'valid_scheme_lst: {valid_scheme_lst}')
+
+valid_two_scheme_lst = [scheme_name for scheme_name in valid_scheme_lst if not any(p in scheme_name for p in ['HQC-3', 'HQC-5', 'BIKE-L5'])]
+_logger.debug(f'valid_two_scheme_lst = {valid_two_scheme_lst}')
+
+invalid_scheme_lst = [scheme_name for scheme_name in oqs.get_enabled_kem_mechanisms() if any(p in scheme_name for p in ['FrodoKEM','Classic-McEliece'])]
+_logger.debug(f'invalid_scheme_lst: {invalid_scheme_lst}')
 
 server_event = threading.Event()
 server_lock = threading.Lock()
+
+# Classes
 
 class StubServer():
     '''Stub server class on localhost.'''
@@ -53,7 +76,7 @@ class StubServer():
                     conn,addr = soc.accept()
                     _logger.debug(f'{self.server_thread.name}: Connection accepted')
                     with conn:
-                        req = conn.recv(1024)
+                        req = conn.recv(8192)
                         _logger.debug(f'{self.server_thread.name}: Request received')
                         if req == b'SERVER_SHUTDOWN':
                             _logger.debug(f'{self.server_thread.name}: Shutdown signal received')
@@ -225,9 +248,70 @@ class TestClientAlgorithmArgument(unittest.TestCase):
             with self.subTest(arg=arg):
                 self.assertEqual(liboqs_bench_client(HOST, PORT, arg, 'SCHEMES_TPL', iterations=1000), _local_req)
 
+class TestClientKeyEstablishment(unittest.TestCase):
+    '''Test class for client key establishment.'''
+
+    def setUp(self):
+        self.server = StubServer()
+
+    def tearDown(self):
+        self.server.close_server()
+        del self.server
+
+    def test_key_establishment_valid_scheme(self):
+        '''Passing a valid scheme for key establishment sends dictionary with valid entries to server.'''
+        for scheme_name in valid_scheme_lst:
+            with self.subTest(arg=scheme_name):
+                server_event.wait()
+                self.assertIsInstance(liboqs_bench_client(HOST, PORT, 'KeyEstablishment', scheme_name), dict)
+                server_event.wait()
+                self.assertEqual(liboqs_bench_client(HOST, PORT, 'KeyEstablishment', scheme_name)['alg'], 'KeyEstablishment')
+                server_event.wait()
+                self.assertIsInstance(liboqs_bench_client(HOST, PORT, 'KeyEstablishment', scheme_name)['scheme_key_dct'], dict)
+                server_event.wait()
+                self.assertIsInstance(liboqs_bench_client(HOST, PORT, 'KeyEstablishment', scheme_name)['scheme_key_dct']['session_no 0'], dict)
+                server_event.wait()
+                self.assertEqual(liboqs_bench_client(HOST, PORT, 'KeyEstablishment', scheme_name)['scheme_key_dct']['session_no 0']['scheme'], scheme_name)
+                server_event.wait()
+                self.assertIsInstance(liboqs_bench_client(HOST, PORT, 'KeyEstablishment', scheme_name)['scheme_key_dct']['session_no 0']['encap_key'], bytes)
+
+    def test_key_establishment_invalid_scheme(self):
+        '''Passing an invalid scheme for key establishment raises InvalidSchemeError (UnpicklingError).'''
+        for scheme_name in invalid_scheme_lst:
+            with self.subTest(arg=scheme_name):
+                server_event.wait()
+                self.assertRaises(pickle.UnpicklingError, liboqs_bench_client, HOST, PORT, 'KeyEstablishment', scheme_name)
+
+    def test_key_establishment_two_schemes(self):
+        '''Passing two valid schemes to server returns valid dictionary with valid entries as request.'''
+        _local_scheme_lst = []
+        for first_scheme in valid_two_scheme_lst:
+            _local_scheme_lst.append(first_scheme)
+            _logger.debug(f'outer_local_scheme_lst = {_local_scheme_lst}')
+            for second_scheme in valid_two_scheme_lst:
+                _local_scheme_lst.append(second_scheme)
+                _logger.debug(f'test_key_establishment_two_schemes: inner_local_scheme_lst = {_local_scheme_lst}')
+                with self.subTest(arg=str(_local_scheme_lst)):
+                    server_event.wait()
+                    self.assertIsInstance(liboqs_bench_client(HOST, PORT, 'KeyEstablishment', *_local_scheme_lst), dict)
+                    server_event.wait()
+                    self.assertIsInstance(liboqs_bench_client(HOST, PORT, 'KeyEstablishment', *_local_scheme_lst)['scheme_key_dct']['session_no 0'], dict)
+                    server_event.wait()
+                    self.assertEqual(liboqs_bench_client(HOST, PORT, 'KeyEstablishment', *_local_scheme_lst)['scheme_key_dct']['session_no 0']['scheme'], first_scheme)
+                    server_event.wait()
+                    self.assertIsInstance(liboqs_bench_client(HOST, PORT, 'KeyEstablishment', *_local_scheme_lst)['scheme_key_dct']['session_no 0']['encap_key'], bytes)
+                    server_event.wait()
+                    self.assertIsInstance(liboqs_bench_client(HOST, PORT, 'KeyEstablishment', *_local_scheme_lst)['scheme_key_dct']['session_no 1'], dict)
+                    server_event.wait()
+                    self.assertEqual(liboqs_bench_client(HOST, PORT, 'KeyEstablishment', *_local_scheme_lst)['scheme_key_dct']['session_no 1']['scheme'], second_scheme)
+                    server_event.wait()
+                    self.assertIsInstance(liboqs_bench_client(HOST, PORT, 'KeyEstablishment', *_local_scheme_lst)['scheme_key_dct']['session_no 1']['encap_key'], bytes)
+
+                del _local_scheme_lst[1]
+            _local_scheme_lst.clear()
+
 
 class TestClientSchemesArgument(unittest.TestCase):
-
     '''Test class for schemes argument.'''
 
     def setUp(self):
@@ -294,7 +378,7 @@ class TestClientIterationsArgument(unittest.TestCase):
             with self.subTest(arg=arg):
                 self.assertEqual(liboqs_bench_client(HOST, PORT, 'ALGORITHM', 'SCHEMES_TPL', iterations=arg), _local_req)
 
-    @unittest.expectedFailure
+    @unittest.expectedFailure # only string raises exception
     def test_invalid_iterations(self):
         '''Invalid iterations argument raises Exception.'''
         args = {}

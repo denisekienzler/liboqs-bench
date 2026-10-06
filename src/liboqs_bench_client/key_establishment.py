@@ -16,6 +16,8 @@ import time
 from typing import Callable
 from functools import wraps
 
+logging.captureWarnings(True)
+logging.getLogger('oqs.oqs').disabled = True
 from oqs import oqs
 
 def timed_once(func: Callable) -> Callable:
